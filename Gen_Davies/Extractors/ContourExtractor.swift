@@ -29,7 +29,7 @@ class ContourExtractor{
 		// Perform the detect contours request
 		let contoursObservations = try await request.perform(
 			on: image,
-			orientation: .downMirrored
+			orientation: .up
 		)
 		
 		// Filter contours that touch more than one edge
@@ -57,6 +57,7 @@ class ContourExtractor{
 		}
 
 		guard let bestContour = sorted.first else { return nil }
+		//print("Contour found with bounding box: \(bestContour.normalizedPath.boundingBox)")
 		let contours = bestContour.normalizedPath
 		
 		return contours
@@ -72,7 +73,7 @@ class ContourExtractor{
 		let height = originalImage.height
 		let colorSpace = CGColorSpaceCreateDeviceRGB()
 		let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-
+		
 		guard let context = CGContext(
 			data: nil,
 			width: width,
@@ -87,10 +88,23 @@ class ContourExtractor{
 
 		context.draw(originalImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 		context.setStrokeColor(strokeColor)
-		context.setLineWidth(lineWidth)
-		context.addPath(contourPath)
+		context.setLineWidth(10)
+		// Draw a visible test circle in the center
+//		let debugCircle = CGPath(ellipseIn: CGRect(
+//			x: CGFloat(width) * 0.4,
+//			y: CGFloat(height) * 0.4,
+//			width: 100,
+//			height: 100
+//		), transform: nil)
+//		context.addPath(debugCircle)
+		context.strokePath()
+		
+		var scaleTransform = CGAffineTransform(scaleX: CGFloat(width), y: CGFloat(height))
+		let scaledPath = contourPath.copy(using: &scaleTransform) ?? contourPath
+		context.addPath(scaledPath)
 		context.strokePath()
 
+		//print("Contour drawn onto image with size: \(width)x\(height)")
 		return context.makeImage()
 	}
 	

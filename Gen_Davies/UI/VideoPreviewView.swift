@@ -8,11 +8,7 @@
 import SwiftUI
 import Combine
 
-protocol VideoFrameProvider: ObservableObject {
-	var currentFrame: CGImage? { get }
-	func startVideoProcessing()
-	func stopVideoProcessing()
-}
+
 
 struct VideoPreviewView: View {
 	@StateObject private var viewModel: VideoPreviewViewModel
@@ -24,16 +20,45 @@ struct VideoPreviewView: View {
 
 	var body: some View {
 		VStack {
-			if let cgImage = viewModel.currentFrame {
-				Image(decorative: cgImage, scale: 1.0)
-					.resizable()
-					.scaledToFit()
+			HStack{
+				SliderControlView(threshold: $appState.lightThreshold, pivot: $appState.lightPivot)
 					.frame(width: 300, height: 300)
-					.border(Color.gray)
-			} else {
-				Text("Waiting for frames...")
-					.foregroundColor(.gray)
+				SliderControlView(threshold: $appState.darkThreshold, pivot: $appState.darkPivot)
+					.frame(width: 300, height: 300)
 			}
+			HStack{
+				if let cgImage = viewModel.currentFrame {
+					Image(decorative: cgImage, scale: 1.0)
+						.resizable()
+						.scaledToFit()
+						.frame(width: 300, height: 300)
+						.border(Color.gray)
+				} else {
+					Text("Waiting for frames...")
+						.foregroundColor(.gray)
+				}
+				if let cgImage = appState.light_contourCGImage{
+					Image(decorative: cgImage, scale: 1.0)
+						.resizable()
+						.scaledToFit()
+						.frame(width: 300, height: 300)
+						.border(Color.gray)
+				} else {
+					Text("Waiting for frames...")
+						.foregroundColor(.gray)
+				}
+				if let cgImage = appState.dark_contourCGImage{
+					Image(decorative: cgImage, scale: 1.0)
+						.resizable()
+						.scaledToFit()
+						.frame(width: 300, height: 300)
+						.border(Color.gray)
+				} else {
+					Text("Waiting for frames...")
+						.foregroundColor(.gray)
+				}
+			}
+			//SliderControlView(value1: .constant(0.5), value2: .constant(0.5)) // Example usage of SliderControlView
 		}
 		.onAppear {
 			viewModel.start()
@@ -41,37 +66,4 @@ struct VideoPreviewView: View {
 	}
 }
 
-class VideoPreviewViewModel: ObservableObject {
-	@Published var currentFrame: CGImage?
 
-	private var provider: any VideoFrameProvider
-	private var cancellable: AnyCancellable?
-
-	init(provider: some VideoFrameProvider) {
-		self.provider = provider
-		self.cancellable = provider
-			.objectWillChange
-			.receive(on: RunLoop.main)
-			.sink { [weak self] _ in
-				self?.currentFrame = provider.currentFrame
-			}
-	}
-
-	func start() {
-		provider.startVideoProcessing()
-	}
-
-	func stop() {
-		provider.stopVideoProcessing()
-	}
-
-	func setProvider(_ newProvider: some VideoFrameProvider) {
-		self.provider = newProvider
-		self.cancellable = newProvider
-			.objectWillChange
-			.receive(on: RunLoop.main)
-			.sink { [weak self] _ in
-				self?.currentFrame = newProvider.currentFrame
-			}
-	}
-}

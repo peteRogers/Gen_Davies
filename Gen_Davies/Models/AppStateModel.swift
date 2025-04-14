@@ -25,9 +25,17 @@ class AppStateModel: ObservableObject {
 	@Published var videoManager: VideoManager?
 	private var cancellables = Set<AnyCancellable>()
 	private let contourExtractor = ContourExtractor()
+	@Published var light_contourCGImage: CGImage?
+	@Published var dark_contourCGImage: CGImage?
+	private var isProcessingFrame = false
+	
+	@Published var lightThreshold: Double = 0.5
+	@Published var darkThreshold: Double = 0.5
+	@Published var lightPivot: Double = 0.5
+	@Published var darkPivot: Double = 0.5
 	
 	init() {
-		print("initialised model")
+		print("initialised app state model")
 	}
 	
 	func bindToCameraManager(_ manager: CameraManager) {
@@ -51,29 +59,51 @@ class AppStateModel: ObservableObject {
 	}
 
 	private func processNewFrame(_ buffer: CVPixelBuffer) {
-		print("Received new pixel buffer for processing.")
+		guard !isProcessingFrame else {
+			print("Skipped frame: already processing.")
+			return
+		}
+		isProcessingFrame = true
 
 		guard let cgImage = contourExtractor.convertPixelBufferToCGImage(buffer) else {
 			print("Failed to convert pixel buffer to CGImage")
+			isProcessingFrame = false
 			return
 		}
 
-		Task {
+		Task { @MainActor in
+			defer { isProcessingFrame = false }
 			do {
-				if let path = try await contourExtractor.detectContours(
+				if let lightpath = try await contourExtractor.detectContours(
 					cgImage: cgImage,
-					detectDarkOnLight: true,
-					contrastAdjustment: 1.0,
-					contrastPivot: 0.5
-				), let renderedImage = contourExtractor.drawContoursOnImage(originalImage: cgImage, contourPath: path) {
-					print("Contours rendered into CGImage.")
-					let ciImage = CIImage(cgImage: renderedImage)
-					// Use ciImage as needed
+					detectDarkOnLight: false,
+					contrastAdjustment: Float(lightThreshold),
+					contrastPivot: Float(lightPivot)
+				),
+				let renderedImage = contourExtractor.drawContoursOnImage(originalImage: cgImage, contourPath: lightpath) {
+					//print("Contours rendered into CGImage.")
+					light_contourCGImage = renderedImage
 				} else {
 					print("No contours to draw.")
 				}
 			} catch {
-				print("Contour detection error: \(error)")
+				print("Contour detection error: \(error.localizedDescription)")
+			}
+			do {
+				if let darkpath = try await contourExtractor.detectContours(
+					cgImage: cgImage,
+					detectDarkOnLight: true,
+					contrastAdjustment: Float(darkThreshold),
+					contrastPivot: Float(darkPivot)
+				),
+				let renderedImage = contourExtractor.drawContoursOnImage(originalImage: cgImage, contourPath: darkpath) {
+					//print("Contours rendered into CGImage.")
+					dark_contourCGImage = renderedImage
+				} else {
+					print("No contours to draw.")
+				}
+			} catch {
+				print("Contour detection error: \(error.localizedDescription)")
 			}
 		}
 	}
