@@ -17,20 +17,11 @@ struct ContentView: View {
 			HStack {
 				Spacer()
 				BlueButton(title: "Use Camera") {
-					appState.currentSource = .camera
-					if appState.cameraManager == nil {
-						appState.cameraManager = CameraManager()
-					}
-					if let cameraManager = appState.cameraManager {
-						appState.bindToCameraManager(cameraManager)
-					}
+					appState.switchSource(to: .camera)
 				}
 
 				BlueButton(title: "Use Video") {
-					appState.currentSource = .video
-					let videoManager = VideoManager()
-					appState.videoManager = videoManager
-					appState.bindToVideoManager(videoManager)
+					appState.switchSource(to: .video)
 				}
 				Spacer()
 			}
@@ -45,13 +36,9 @@ struct ContentView: View {
 	private var previewView: some View {
 		switch appState.currentSource {
 		case .camera:
-			if let cameraManager = appState.cameraManager {
-				VideoPreviewView(provider: cameraManager)
-			}
+			VideoPreviewView(viewModel: VideoModel(provider: appState.cameraModel.manager))
 		case .video:
-			if let videoManager = appState.videoManager {
-				VideoPreviewView(provider: videoManager)
-			}
+			VideoPreviewView(viewModel: appState.videoModel)
 		}
 	}
 }

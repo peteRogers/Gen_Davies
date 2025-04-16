@@ -7,12 +7,13 @@
 import SwiftUI
 
 struct SliderControlView: View {
+	let title: String
 	@Binding var threshold: Double
 	@Binding var pivot: Double
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 20) {
-			Text("Contour Settings")
+			Text(title)
 				.font(.headline)
 
 			VStack(alignment: .leading) {

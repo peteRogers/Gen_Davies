@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class VideoPreviewViewModel: ObservableObject {
+class VideoModel: ObservableObject {
 	@Published var currentFrame: CGImage?
 	private var provider: any VideoFrameProvider
 	private var cancellable: AnyCancellable?
@@ -28,7 +28,6 @@ class VideoPreviewViewModel: ObservableObject {
 	}
 
 	func stop() {
-		
 		provider.stopVideoProcessing()
 	}
 
@@ -48,5 +47,3 @@ protocol VideoFrameProvider: ObservableObject {
 	func startVideoProcessing()
 	func stopVideoProcessing()
 }
-
-

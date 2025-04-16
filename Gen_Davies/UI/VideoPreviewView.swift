@@ -8,22 +8,20 @@
 import SwiftUI
 import Combine
 
-
-
 struct VideoPreviewView: View {
-	@StateObject private var viewModel: VideoPreviewViewModel
+	@ObservedObject var viewModel: VideoModel
 	@EnvironmentObject var appState: AppStateModel
-
-	init(provider: some VideoFrameProvider) {
-		_viewModel = StateObject(wrappedValue: VideoPreviewViewModel(provider: provider))
+	
+	init(viewModel: VideoModel) {
+		self.viewModel = viewModel
 	}
 
 	var body: some View {
 		VStack {
 			HStack{
-				SliderControlView(threshold: $appState.lightThreshold, pivot: $appState.lightPivot)
+				SliderControlView(title: "Light Settings: ", threshold: $appState.contourModel.lightThreshold, pivot: $appState.contourModel.lightPivot)
 					.frame(width: 300, height: 300)
-				SliderControlView(threshold: $appState.darkThreshold, pivot: $appState.darkPivot)
+				SliderControlView(title: "Dark Settings: ", threshold: $appState.contourModel.darkThreshold, pivot: $appState.contourModel.darkPivot)
 					.frame(width: 300, height: 300)
 			}
 			HStack{
@@ -37,7 +35,7 @@ struct VideoPreviewView: View {
 					Text("Waiting for frames...")
 						.foregroundColor(.gray)
 				}
-				if let cgImage = appState.light_contourCGImage{
+				if let cgImage = appState.contourModel.light_contourCGImage{
 					Image(decorative: cgImage, scale: 1.0)
 						.resizable()
 						.scaledToFit()
@@ -47,7 +45,7 @@ struct VideoPreviewView: View {
 					Text("Waiting for frames...")
 						.foregroundColor(.gray)
 				}
-				if let cgImage = appState.dark_contourCGImage{
+				if let cgImage = appState.contourModel.dark_contourCGImage{
 					Image(decorative: cgImage, scale: 1.0)
 						.resizable()
 						.scaledToFit()
@@ -65,5 +63,3 @@ struct VideoPreviewView: View {
 		}
 	}
 }
-
-

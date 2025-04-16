@@ -32,6 +32,7 @@ class VideoManager: ObservableObject, VideoFrameProvider {
 	
 	func stopVideoProcessing() {
 		isRunning = false
+		reader?.cancelReading()
 	}
 
 	func processVideo(from filename: String, withExtension fileExtension: String, completion: @escaping () -> Void) {
@@ -60,15 +61,20 @@ class VideoManager: ObservableObject, VideoFrameProvider {
 			if let reader = reader, let videoOutput = videoOutput {
 				reader.add(videoOutput)
 				reader.startReading()
-
+				self.isRunning = true
 				DispatchQueue.global(qos: .userInitiated).async {
-					self.isRunning = true
 					var frameIndex = 0
-					while self.isRunning, let sampleBuffer = videoOutput.copyNextSampleBuffer() {
+					while self.isRunning {
+						guard let sampleBuffer = videoOutput.copyNextSampleBuffer() else {
+							break
+						}
+						if !self.isRunning { break }
+
 						if frameIndex % self.frameSkipInterval == 0,
 						   let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
 						   let image = VideoManager.convert(pixelBuffer: pixelBuffer) {
 							DispatchQueue.main.async {
+								print("from video")
 								self.currentFrame = image
 								self.pixelBufferPublisher.send(pixelBuffer)
 							}
