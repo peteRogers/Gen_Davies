@@ -74,7 +74,7 @@ class VideoManager: ObservableObject, VideoFrameProvider {
 						   let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
 						   let image = VideoManager.convert(pixelBuffer: pixelBuffer) {
 							DispatchQueue.main.async {
-								print("from video")
+								//print("from video")
 								self.currentFrame = image
 								self.pixelBufferPublisher.send(pixelBuffer)
 							}

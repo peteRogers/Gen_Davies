@@ -18,6 +18,27 @@ struct VideoPreviewView: View {
 
 	var body: some View {
 		VStack {
+			HStack {
+				Text("Audio Player Volumes")
+					.font(.headline)
+					.padding(.bottom, 4)
+
+				ForEach(Array(appState.audioModel.players.enumerated()), id: \.offset) { index, player in
+					VStack(alignment: .leading) {
+						Text("Player \(index + 1)")
+							.font(.subheadline)
+
+						Slider(
+							value: Binding(
+								get: { player.volumeMixer.volume },
+								set: { player.setAmplitude($0) }
+							),
+							in: 0...1
+						)
+					}
+				}
+			}
+			.padding()
 			HStack{
 				SliderControlView(title: "Light Settings: ", threshold: $appState.contourModel.lightThreshold, pivot: $appState.contourModel.lightPivot)
 					.frame(width: 300, height: 300)

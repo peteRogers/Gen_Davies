@@ -27,7 +27,7 @@ class ContourModel: ObservableObject {
 
 	func processNewFrame(_ buffer: CVPixelBuffer) {
 		guard !isProcessingFrame else {
-			print("Skipped frame: already processing.")
+			//print("Skipped frame: already processing.")
 			return
 		}
 		isProcessingFrame = true
@@ -50,7 +50,7 @@ class ContourModel: ObservableObject {
 				let renderedImage = contourExtractor.drawContoursOnImage(originalImage: cgImage, contourPath: lightpath) {
 					light_contourCGImage = renderedImage
 				} else {
-					print("No light contours to draw.")
+					//print("No light contours to draw.")
 				}
 			} catch {
 				print("Light contour detection error: \(error.localizedDescription)")
@@ -66,7 +66,7 @@ class ContourModel: ObservableObject {
 				let renderedImage = contourExtractor.drawContoursOnImage(originalImage: cgImage, contourPath: darkpath) {
 					dark_contourCGImage = renderedImage
 				} else {
-					print("No dark contours to draw.")
+					//print("No dark contours to draw.")
 				}
 			} catch {
 				print("Dark contour detection error: \(error.localizedDescription)")

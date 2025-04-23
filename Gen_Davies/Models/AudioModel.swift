@@ -1,55 +1,94 @@
-//
-//  AudioPlayer.swift
-//  Gen_Davies
-//
-//  Created by Peter Rogers on 15/04/2025.
-//
-
 import AudioKit
 import AVFoundation
 import Foundation
 
 class AudioModel: ObservableObject {
 	let engine = AudioEngine()
-	private let mixer = Mixer()
-	private var players: [AudioFilePlayer] = []
+	private let mainMixer = Mixer()
+
+	@Published private(set) var players: [AudioFilePlayer] = []
 
 	init() {
-		engine.output = mixer
+		engine.output = mainMixer
 	}
 
-	func addPlayer() -> AudioFilePlayer {
-		let player = AudioFilePlayer(mixer: mixer)
-		players.append(player)
-		return player
-	}
-
+	/// Start the audio engine and play all loaded players
 	func start() {
 		do {
 			try engine.start()
+			print("Audio engine started.")
+			for player in players {
+				print(player.fileURL as Any)
+				player.play()
+			}
 		} catch {
-			print("Failed to start engine: \(error)")
+			print("Failed to start AudioKit engine: \(error)")
 		}
 	}
 
+	/// Stop all players and the audio engine
 	func stop() {
-		players.forEach { $0.stop() }
-		engine.stop()
+		DispatchQueue.global(qos: .userInitiated).async {
+			self.players.forEach { $0.stop() }
+			self.engine.stop()
+		}
+		
+	}
+
+	/// Add and load a new player with a given file
+	func addPlayer(with fileURL: URL) {
+		do {
+			let player = AudioFilePlayer(mixer: mainMixer)
+			try player.load(fileURL: fileURL)
+			players.append(player)
+		} catch {
+			print("Failed to load audio file: \(error)")
+		}
 	}
 }
 
-
 class AudioFilePlayer {
 	private let player = AudioPlayer()
+	let volumeMixer = Mixer()
+	private(set) var fileURL: URL?
+	private let audioQueue = DispatchQueue(label: "AudioPlaybackQueue")
 
 	init(mixer: Mixer) {
-		mixer.addInput(player)
+		volumeMixer.addInput(player)
+		mixer.addInput(volumeMixer)
 	}
 
-	func loadAndPlay(fileURL: URL) throws {
+	func load(fileURL: URL) throws {
 		let audioFile = try AVAudioFile(forReading: fileURL)
+		print("File loaded")
 		player.file = audioFile
-		player.play()
+		self.fileURL = fileURL
+	}
+
+	func play() {
+		guard !player.isPlaying else { return }
+
+		player.completionHandler = { [weak self] in
+			guard let self = self else { return }
+			print("Playback completed — restarting...")
+
+			self.audioQueue.async {
+				do {
+					if let url = self.fileURL {
+						try self.load(fileURL: url)
+						self.play()
+					}
+				} catch {
+					print("Failed to reload audio file for looping: \(error)")
+				}
+			}
+		}
+
+		player.play(from: 0)
+	}
+
+	func setAmplitude(_ value: AUValue) {
+		volumeMixer.volume = value
 	}
 
 	func stop() {

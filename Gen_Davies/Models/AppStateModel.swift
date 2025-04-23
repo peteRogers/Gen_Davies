@@ -17,6 +17,7 @@ class AppStateModel: ObservableObject {
 	enum SourceType {
 		case camera
 		case video
+		case none
 	}
 	
 	@Published var currentSource: SourceType = .video
@@ -25,13 +26,20 @@ class AppStateModel: ObservableObject {
 	@Published var videoManager = VideoManager()
 	@Published var videoModel: VideoModel!
 	@Published var contourModel = ContourModel()
+	@Published var audioModel:AudioModel!
 	private var cancellables = Set<AnyCancellable>()
 
 	init() {
 		print("initialised app state model")
+		audioModel = AudioModel()
 		cameraModel = CameraModel(contourModel: contourModel)
 		videoModel = VideoModel(provider: videoManager)
 		bindToVideoManager(videoManager)
+
+		if let fileURL = Bundle.main.url(forResource: "tester", withExtension: "wav") {
+			audioModel.addPlayer(with: fileURL)
+			
+		}
 	}
 	
 	func switchSource(to source: SourceType) {
@@ -46,9 +54,14 @@ class AppStateModel: ObservableObject {
 		switch source {
 		case .camera:
 			cameraModel.start()
+			audioModel.start()
 		case .video:
 			videoModel.start()
+			audioModel.start()
+		case .none:
+			break
 		}
+	
 	}
 
 	func bindToVideoManager(_ manager: VideoManager) {
@@ -61,3 +74,5 @@ class AppStateModel: ObservableObject {
 			.store(in: &cancellables)
 	}
 }
+
+
