@@ -1,6 +1,7 @@
 import AudioKit
 import AVFoundation
 import Foundation
+import SoundpipeAudioKit
 
 class AudioModel: ObservableObject {
 	let engine = AudioEngine()
@@ -50,11 +51,14 @@ class AudioModel: ObservableObject {
 class AudioFilePlayer {
 	private let player = AudioPlayer()
 	let volumeMixer = Mixer()
+	let reverb: CostelloReverb!
 	private(set) var fileURL: URL?
 	private let audioQueue = DispatchQueue(label: "AudioPlaybackQueue")
 
 	init(mixer: Mixer) {
-		volumeMixer.addInput(player)
+		reverb = CostelloReverb(player)
+		volumeMixer.addInput(reverb)
+		reverb.balance = 0.5
 		mixer.addInput(volumeMixer)
 	}
 
@@ -89,6 +93,14 @@ class AudioFilePlayer {
 
 	func setAmplitude(_ value: AUValue) {
 		volumeMixer.volume = value
+	}
+	
+	func setPan(_ value: AUValue) {
+		volumeMixer.pan = value
+	}
+	
+	func setReverbFeedback(_ value: AUValue) {
+		reverb.feedback = value
 	}
 
 	func stop() {

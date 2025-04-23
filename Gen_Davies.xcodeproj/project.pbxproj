@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F61C6FA2DB9016F009FA15B /* SoundpipeAudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2F61C6F92DB9016F009FA15B /* SoundpipeAudioKit */; };
 		2FA58A722DADE4B200319993 /* AudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2FA58A712DADE4B200319993 /* AudioKit */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F61C6FA2DB9016F009FA15B /* SoundpipeAudioKit in Frameworks */,
 				2FA58A722DADE4B200319993 /* AudioKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +73,7 @@
 			name = Gen_Davies;
 			packageProductDependencies = (
 				2FA58A712DADE4B200319993 /* AudioKit */,
+				2F61C6F92DB9016F009FA15B /* SoundpipeAudioKit */,
 			);
 			productName = Gen_Davies;
 			productReference = 2F8B2F0D2DA1536C00000185 /* Gen_Davies.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2FA58A702DADE4B200319993 /* XCRemoteSwiftPackageReference "AudioKit" */,
+				2F61C6F82DB9016F009FA15B /* XCRemoteSwiftPackageReference "SoundpipeAudioKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2F8B2F0E2DA1536C00000185 /* Products */;
@@ -339,6 +343,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2F61C6F82DB9016F009FA15B /* XCRemoteSwiftPackageReference "SoundpipeAudioKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AudioKit/SoundpipeAudioKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.6.1;
+			};
+		};
 		2FA58A702DADE4B200319993 /* XCRemoteSwiftPackageReference "AudioKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AudioKit/AudioKit.git";
@@ -350,6 +362,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2F61C6F92DB9016F009FA15B /* SoundpipeAudioKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2F61C6F82DB9016F009FA15B /* XCRemoteSwiftPackageReference "SoundpipeAudioKit" */;
+			productName = SoundpipeAudioKit;
+		};
 		2FA58A712DADE4B200319993 /* AudioKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2FA58A702DADE4B200319993 /* XCRemoteSwiftPackageReference "AudioKit" */;

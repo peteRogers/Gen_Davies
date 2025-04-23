@@ -19,24 +19,29 @@ struct VideoPreviewView: View {
 	var body: some View {
 		VStack {
 			HStack {
-				Text("Audio Player Volumes")
-					.font(.headline)
-					.padding(.bottom, 4)
-
+				
+				Spacer()
 				ForEach(Array(appState.audioModel.players.enumerated()), id: \.offset) { index, player in
 					VStack(alignment: .leading) {
-						Text("Player \(index + 1)")
-							.font(.subheadline)
-
-						Slider(
-							value: Binding(
+						
+						AudioControlsView(
+							index: index,
+							volume: Binding(
 								get: { player.volumeMixer.volume },
-								set: { player.setAmplitude($0) }
-							),
-							in: 0...1
-						)
+								set: { player.setAmplitude($0) })
+							,
+							pan: Binding(
+								get: { player.volumeMixer.pan },
+								set: { player.setPan($0)})
+							,
+							reverbFedbcak: Binding(
+								get: { player.reverb.feedback },
+								set: { player.setReverbFeedback($0)})
+						).frame(width: 300)
+							.cornerRadius(10)
 					}
 				}
+				Spacer()
 			}
 			.padding()
 			HStack{

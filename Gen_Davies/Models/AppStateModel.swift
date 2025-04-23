@@ -20,7 +20,7 @@ class AppStateModel: ObservableObject {
 		case none
 	}
 	
-	@Published var currentSource: SourceType = .video
+	@Published var currentSource: SourceType = .none
 	@Published var currentPixelBuffer: CVPixelBuffer?
 	@Published var cameraModel: CameraModel!
 	@Published var videoManager = VideoManager()
@@ -37,6 +37,7 @@ class AppStateModel: ObservableObject {
 		bindToVideoManager(videoManager)
 
 		if let fileURL = Bundle.main.url(forResource: "tester", withExtension: "wav") {
+			audioModel.addPlayer(with: fileURL)
 			audioModel.addPlayer(with: fileURL)
 			
 		}

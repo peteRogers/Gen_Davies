@@ -39,7 +39,10 @@ struct ContentView: View {
 			VideoPreviewView(viewModel: VideoModel(provider: appState.cameraModel.manager))
 		case .video:
 			VideoPreviewView(viewModel: appState.videoModel)
+		case .none:
+			Text("No Source Selected")
 		}
+		
 	}
 }
 
