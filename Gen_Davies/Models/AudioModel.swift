@@ -92,6 +92,7 @@ class AudioFilePlayer {
 	}
 
 	func setAmplitude(_ value: AUValue) {
+		print("volume", value)
 		volumeMixer.volume = value
 	}
 	

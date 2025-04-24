@@ -15,7 +15,8 @@ class VideoManager: ObservableObject, VideoFrameProvider {
 	let pixelBufferPublisher = PassthroughSubject<CVPixelBuffer, Never>()
 
 	func startVideoProcessing() {
-		processVideo(from: "above motion test", withExtension: "mov") {
+		//processVideo(from: "above motion test", withExtension: "mov") {
+		processVideo(from: "genSequence", withExtension: "mp4") {
 			print("Video processing complete")
 		}
 	}
