@@ -66,7 +66,7 @@ class ContourExtractor{
 	func drawContoursOnImage(
 		originalImage: CGImage,
 		contourPath: CGPath,
-		strokeColor: CGColor = CGColor(gray: 1.0, alpha: 1.0),
+		strokeColor: CGColor = CGColor(red: 1, green: 0, blue: 1, alpha: 1),
 		lineWidth: CGFloat = 2.0
 	) -> CGImage? {
 		let width = originalImage.width

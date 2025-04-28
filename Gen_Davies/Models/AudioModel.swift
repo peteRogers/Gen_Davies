@@ -101,6 +101,7 @@ class AudioFilePlayer {
 	}
 	
 	func setReverbFeedback(_ value: AUValue) {
+		print(value)
 		reverb.feedback = value
 	}
 

@@ -9,14 +9,15 @@
 import Foundation
 import CoreGraphics
 import CoreImage
+import AudioKit
 //import CoreVideo
 
 @MainActor
 class ContourModel: ObservableObject {
 	private let contourExtractor = ContourExtractor()
 
-	@Published var lightThreshold: Double = 0.5
-	@Published var darkThreshold: Double = 0.5
+	@Published var lightThreshold: Double = 1.8
+	@Published var darkThreshold: Double = 0.9
 	@Published var lightPivot: Double = 0.5
 	@Published var darkPivot: Double = 0.5
 
@@ -103,6 +104,59 @@ class ContourModel: ObservableObject {
 			}
 		}
 	}
+
+//	// Analyze light shape and return a scaled amplitude value
+//	func analyzeLightShape() -> AUValue {
+//		guard let shape = lightShapeInfo else { return 0.0 }
+//		let boosted = pow(shape.areaRatio * 1000000, 0.5)
+//		let scaledValue = AUValue(min(max(boosted, 0), 1))
+//		print("Analyzing Light Shape - Area Ratio: \(shape.areaRatio), Centroid: \(shape.centroid)")
+//		print("Computed Amplitude: \(scaledValue)")
+//		return scaledValue
+//	}
+//
+//	// Analyze dark shape and return a scaled amplitude value
+//	func analyzeDarkShape() -> AUValue {
+//		guard let shape = darkShapeInfo else { return 0.0 }
+//		let boosted = pow(shape.areaRatio * 1000000, 0.5)
+//		let scaledValue = AUValue(min(max(boosted, 0), 1))
+//		print("Analyzing Dark Shape - Area Ratio: \(shape.areaRatio), Centroid: \(shape.centroid)")
+//		print("Computed Amplitude: \(scaledValue)")
+//		return scaledValue
+//	}
+
+	// Optional: General shape analyzer
+	func analyzeShape(_ shapeInfo: ShapeInfo?) -> AUValue {
+		guard let shape = shapeInfo else { return 0.0 }
+		let boosted = pow(shape.areaRatio * 1000000, 0.5)
+		let scaledValue = AUValue(min(max(boosted, 0), 1))
+		print("Analyzing Shape - Area Ratio: \(shape.areaRatio), Centroid: \(shape.centroid)")
+		print("Computed Amplitude: \(scaledValue)")
+		return scaledValue
+	}
+	
+	
+	func analyzeShapeLongestLength(_ shapeInfo: ShapeInfo?) -> AUValue {
+	 guard let shape = shapeInfo else { return 0.0 }
+	 let longestSide = max(shape.boundingBox.width, shape.boundingBox.height)
+	 let normalizedLength = longestSide / 1 // Assume 1000 is the max size for normalization
+	 let scaledValue = AUValue(min(max(normalizedLength, 0), 1))
+	 print("Analyzing Shape - Longest Side: \(longestSide), Normalized: \(normalizedLength)")
+	 print("Computed Amplitude from Length: \(scaledValue)")
+	 return scaledValue
+ }
+	
+	func panShape(_ shapeInfo: ShapeInfo?) -> AUValue {
+		guard let shape = shapeInfo else { return 0.0 } // Default center if no shape
+		let normalizedX = shape.centroid.x / 1 // Assuming 1000 width
+		let clampedX = min(max(normalizedX, 0), 1)
+		let panValue = (clampedX * 2.0) - 1.0 // Map [0,1] to [-1,1]
+		print("Centroid X: \(shape.centroid.x), Normalized X: \(normalizedX), Pan Value: \(panValue)")
+		return AUValue(panValue)
+	}
+	
+	
+	
 }
 
 
