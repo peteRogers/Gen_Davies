@@ -68,18 +68,7 @@ class AppStateModel: ObservableObject {
 			}
 			.store(in: &cancellables)
 		
-//		contourModel.$darkContourAreaRatio
-//			.sink { [weak self] ratio in
-//				guard let self = self else { return }
-//				print("Dark contour area ratio: \(ratio) (\(ratio * 100)% of image)")
-//				guard !self.audioModel.players.isEmpty else { return }
-//				// Use analyzeLightShape from ContourModel to compute amplitude
-//				let scaledValue = self.contourModel.analyzeDarkShape()
-//				print("Sending amplitude to audio model: \(scaledValue)")
-//				self.audioModel.players[1].setAmplitude(scaledValue)
-//			}
-//			.store(in: &cancellables)
-		
+
 		contourModel.$darkShapeInfo
 			.compactMap { $0 }
 			.sink { [weak self] shape in
@@ -87,6 +76,7 @@ class AppStateModel: ObservableObject {
 				let scaledValue = self.contourModel.analyzeShapeLongestLength(shape)
 				if self.audioModel.players.indices.contains(1) {
 					self.audioModel.players[1].setAmplitude(scaledValue)
+					print(scaledValue)
 					self.audioModel.players[1].setPan(self.contourModel.panShape(shape))
 					self.audioModel.players[1].setReverbFeedback(scaledValue*2)
 				}

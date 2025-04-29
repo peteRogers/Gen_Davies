@@ -29,6 +29,7 @@ class AudioModel: ObservableObject {
 
 	/// Stop all players and the audio engine
 	func stop() {
+		print("Stopping engine...")
 		DispatchQueue.global(qos: .userInitiated).async {
 			self.players.forEach { $0.stop() }
 			self.engine.stop()
@@ -54,12 +55,22 @@ class AudioFilePlayer {
 	let reverb: CostelloReverb!
 	private(set) var fileURL: URL?
 	private let audioQueue = DispatchQueue(label: "AudioPlaybackQueue")
+	
+	private let feedbackSmoother = ValueSmoother(initialValue: 0.5)
+	private let volumeSmoother = ValueSmoother(initialValue: 0.5)
+	private let panSmoother = ValueSmoother(initialValue: 0.5)
+	private var smoothingTimer: Timer?
 
 	init(mixer: Mixer) {
 		reverb = CostelloReverb(player)
 		volumeMixer.addInput(reverb)
 		reverb.balance = 0.5
 		mixer.addInput(volumeMixer)
+
+		// Start smoothing timer
+		smoothingTimer = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { [weak self] _ in
+			self?.updateSmoothers()
+		}
 	}
 
 	func load(fileURL: URL) throws {
@@ -92,20 +103,41 @@ class AudioFilePlayer {
 	}
 
 	func setAmplitude(_ value: AUValue) {
-		print("volume", value)
-		volumeMixer.volume = value
+		//print("volume", value)
+		volumeSmoother.setTarget(value)
 	}
 	
 	func setPan(_ value: AUValue) {
-		volumeMixer.pan = value
+		panSmoother.setTarget(value)
+		//volumeMixer.pan = value
 	}
 	
 	func setReverbFeedback(_ value: AUValue) {
-		print(value)
-		reverb.feedback = value
+		//print(value)
+		feedbackSmoother.setTarget(value)
+		//reverb.feedback = value
+	}
+	
+	func updateSmoothers() {
+		feedbackSmoother.update()
+		reverb.feedback = feedbackSmoother.value
+
+		volumeSmoother.update()
+		volumeMixer.volume = volumeSmoother.value
+
+		panSmoother.update()
+		volumeMixer.pan = panSmoother.value
 	}
 
 	func stop() {
-		player.stop()
+		let backgroundQueue = DispatchQueue(label: "background_queue",
+													qos: .background)
+				
+		backgroundQueue.async {[weak self] in
+			// Call the class you need here and it will be done on a background QOS
+			self?.player.stop()
+		}
+		smoothingTimer?.invalidate()
+		smoothingTimer = nil
 	}
 }

@@ -130,8 +130,8 @@ class ContourModel: ObservableObject {
 		guard let shape = shapeInfo else { return 0.0 }
 		let boosted = pow(shape.areaRatio * 1000000, 0.5)
 		let scaledValue = AUValue(min(max(boosted, 0), 1))
-		print("Analyzing Shape - Area Ratio: \(shape.areaRatio), Centroid: \(shape.centroid)")
-		print("Computed Amplitude: \(scaledValue)")
+		//print("Analyzing Shape - Area Ratio: \(shape.areaRatio), Centroid: \(shape.centroid)")
+		//print("Computed Amplitude: \(scaledValue)")
 		return scaledValue
 	}
 	
@@ -141,8 +141,8 @@ class ContourModel: ObservableObject {
 	 let longestSide = max(shape.boundingBox.width, shape.boundingBox.height)
 	 let normalizedLength = longestSide / 1 // Assume 1000 is the max size for normalization
 	 let scaledValue = AUValue(min(max(normalizedLength, 0), 1))
-	 print("Analyzing Shape - Longest Side: \(longestSide), Normalized: \(normalizedLength)")
-	 print("Computed Amplitude from Length: \(scaledValue)")
+	// print("Analyzing Shape - Longest Side: \(longestSide), Normalized: \(normalizedLength)")
+	// print("Computed Amplitude from Length: \(scaledValue)")
 	 return scaledValue
  }
 	
@@ -151,7 +151,7 @@ class ContourModel: ObservableObject {
 		let normalizedX = shape.centroid.x / 1 // Assuming 1000 width
 		let clampedX = min(max(normalizedX, 0), 1)
 		let panValue = (clampedX * 2.0) - 1.0 // Map [0,1] to [-1,1]
-		print("Centroid X: \(shape.centroid.x), Normalized X: \(normalizedX), Pan Value: \(panValue)")
+		//print("Centroid X: \(shape.centroid.x), Normalized X: \(normalizedX), Pan Value: \(panValue)")
 		return AUValue(panValue)
 	}
 	
